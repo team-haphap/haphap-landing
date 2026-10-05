@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HAPHAP · 지원 결과 트래킹 서비스</title>
+<meta name="description" content="HAPHAP은 같은 공고에 지원한 사람들의 데이터를 바탕으로 전형별 결과를 구조화하고, 발표 예상 시점을 확인할 수 있는 지원 결과 트래킹 서비스입니다.">
+<meta property="og:title" content="HAPHAP — 지원 이후, 보이지 않던 기다림을 더 선명하게">
+<meta property="og:description" content="같은 공고 지원자들의 데이터로 전형별 결과와 발표 예상 시점을 확인하세요.">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --bg:#ffffff; --bg-soft:#f5f6fb; --text:#14161f; --muted:#5b6070; --line:#e4e6ef;
+    --brand:#4b5bff; --brand-deep:#2f3be0; --brand-soft:#eceeff; --accent:#16b98a;
+    --card:#ffffff; --shadow:0 20px 50px -20px rgba(30,40,120,.25);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0e1017; --bg-soft:#151826; --text:#eef0f7; --muted:#a2a7b8; --line:#262a3b;
+      --brand:#7c88ff; --brand-deep:#a3acff; --brand-soft:#1d2140; --accent:#3fd6a8;
+      --card:#171a28; --shadow:0 20px 50px -20px rgba(0,0,0,.6);
+    }
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:"Pretendard",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;word-break:keep-all}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 85%,transparent);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+  .logo{font-weight:800;font-size:20px;letter-spacing:-.02em}
+  .logo span{color:var(--brand)}
+  .nav-links{display:flex;gap:22px;font-size:14px;color:var(--muted)}
+  .nav-links a:hover{color:var(--text)}
+  @media (max-width:640px){.nav-links{display:none}}
+  nav .wrap{gap:16px}
+  .nav-links{margin-left:auto}
+  .lang{display:flex;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--card)}
+  .lang button{font:inherit;font-size:13px;font-weight:600;border:0;background:none;color:var(--muted);padding:5px 12px;border-radius:999px;cursor:pointer}
+  .lang button[aria-pressed="true"]{background:var(--brand);color:#fff}
+
+  /* hero */
+  .hero{padding:80px 0 72px;background:radial-gradient(1000px 420px at 85% 0%,var(--brand-soft),transparent 70%)}
+  .hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center}
+  .badge{display:inline-block;font-size:13px;font-weight:600;color:var(--brand);background:var(--brand-soft);
+    padding:6px 12px;border-radius:999px;margin-bottom:20px}
+  h1{font-size:clamp(32px,5vw,50px);line-height:1.25;letter-spacing:-.03em;font-weight:800}
+  h1 em{font-style:normal;color:var(--brand)}
+  .lead{margin-top:20px;font-size:18px;color:var(--muted);max-width:520px}
+  .cta{margin-top:32px;display:flex;gap:12px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:14px 22px;border-radius:12px;font-weight:700;font-size:15px}
+  .btn-primary{background:var(--brand);color:#fff}
+  .btn-primary:hover{background:var(--brand-deep)}
+  .btn-ghost{border:1px solid var(--line);background:var(--card)}
+  .btn-ghost:hover{border-color:var(--brand)}
+  @media (max-width:860px){.hero .wrap{grid-template-columns:1fr}.hero{padding:56px 0}}
+
+  /* phone mockup */
+  .phone{justify-self:center;width:300px;max-width:100%;background:var(--card);border:1px solid var(--line);
+    border-radius:36px;padding:22px 18px;box-shadow:var(--shadow)}
+  .phone-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+  .phone-top b{font-size:17px}
+  .phone-top small{font-size:12px;color:var(--muted)}
+  .job{border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:12px}
+  .job-head{display:flex;justify-content:space-between;align-items:baseline}
+  .job-name{font-weight:700;font-size:15px}
+  .chip{white-space:nowrap;flex-shrink:0;margin-left:8px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--brand-soft);color:var(--brand)}
+  .chip.done{background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)}
+  .steps{display:flex;gap:6px;margin:14px 0 10px}
+  .steps i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+  .steps i.on{background:var(--brand)}
+  .meta{font-size:12.5px;color:var(--muted)}
+  .meta strong{color:var(--text)}
+  .bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden;margin-top:8px}
+  .bar span{display:block;height:100%;background:var(--accent)}
+  .phone-note{font-size:11px;color:var(--muted);text-align:center;margin-top:6px}
+
+  /* sections */
+  section{padding:88px 0}
+  .soft{background:var(--bg-soft)}
+  .eyebrow{font-size:13px;font-weight:700;color:var(--brand);letter-spacing:.04em;margin-bottom:10px}
+  h2{font-size:clamp(26px,3.6vw,36px);line-height:1.3;letter-spacing:-.02em;font-weight:800}
+  .sub{margin-top:14px;color:var(--muted);font-size:17px;max-width:620px}
+
+  .problem{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px}
+  .q{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;font-size:16px;font-weight:600}
+  .q small{display:block;margin-top:8px;font-weight:400;font-size:14px;color:var(--muted)}
+  @media (max-width:760px){.problem{grid-template-columns:1fr}}
+
+  .features{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:44px}
+  .feat{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px}
+  .ico{width:46px;height:46px;border-radius:14px;background:var(--brand-soft);display:grid;place-items:center;margin-bottom:18px}
+  .ico svg{width:24px;height:24px;stroke:var(--brand);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .feat h3{font-size:19px;margin-bottom:8px;letter-spacing:-.01em}
+  .feat p{color:var(--muted);font-size:15px}
+  @media (max-width:860px){.features{grid-template-columns:1fr}}
+
+  .how{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:44px;counter-reset:s}
+  .how li{list-style:none;padding-top:20px;border-top:2px solid var(--line);position:relative}
+  .how li::before{counter-increment:s;content:"0" counter(s);font-weight:800;color:var(--brand);font-size:14px}
+  .how h3{font-size:18px;margin:6px 0}
+  .how p{color:var(--muted);font-size:15px}
+  @media (max-width:760px){.how{grid-template-columns:1fr}}
+
+  .team{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
+  .team div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 18px;font-size:15px}
+  .team b{color:var(--brand);margin-left:6px}
+
+  .launch{text-align:center}
+  .launch .sub{margin:14px auto 0}
+  .launch .cta{justify-content:center}
+
+  footer{border-top:1px solid var(--line);padding:32px 0;font-size:14px;color:var(--muted)}
+  footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  footer a:hover{color:var(--text)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#">HAP<span>HAP</span></a>
+    <div class="nav-links">
+      <a href="#features" data-i18n="nav1">기능</a>
+      <a href="#how" data-i18n="nav2">사용 방법</a>
+      <a href="#team" data-i18n="nav3">팀</a>
+      <a href="https://www.instagram.com/haphap_official_/" target="_blank" rel="noopener">Instagram</a>
+    </div>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="ko">한국어</button><button type="button" data-lang="en">EN</button>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <span class="badge" data-i18n="badge">2026년 12월 정식 출시 예정</span>
+      <h1 data-i18n="h1">지원 이후,<br>보이지 않던 기다림을<br><em>더 선명하게</em></h1>
+      <p class="lead" data-i18n="lead">HAPHAP은 같은 공고에 지원한 사람들의 데이터를 바탕으로 전형별 결과를 구조화하고, 발표 예상 시점을 확인할 수 있는 지원 결과 트래킹 서비스입니다.</p>
+      <div class="cta">
+        <a class="btn btn-primary" href="https://www.instagram.com/haphap_official_/" target="_blank" rel="noopener" data-i18n="cta1">출시 소식 받기</a>
+        <a class="btn btn-ghost" href="#features" data-i18n="cta2">어떻게 작동하나요?</a>
+      </div>
+    </div>
+
+    <div class="phone" aria-label="HAPHAP 앱 화면 예시">
+      <div class="phone-top"><b data-i18n="m_title">내 지원 현황</b><small data-i18n="m_count">3개 진행 중</small></div>
+      <div class="job">
+        <div class="job-head"><span class="job-name" data-i18n="j1">A사 · 백엔드 신입</span><span class="chip" data-i18n="j1s">1차 면접</span></div>
+        <div class="steps"><i class="on"></i><i class="on"></i><i></i><i></i></div>
+        <div class="meta" data-i18n="j1d">발표 예상 <strong>10월 14일 ~ 16일</strong></div>
+        <div class="bar"><span style="width:38%"></span></div>
+        <div class="meta" style="margin-top:6px" data-i18n="j1r">같은 공고 지원자 중 <strong>38%</strong> 결과 수신</div>
+      </div>
+      <div class="job">
+        <div class="job-head"><span class="job-name" data-i18n="j2">B사 · 서비스 기획</span><span class="chip" data-i18n="j2s">서류</span></div>
+        <div class="steps"><i class="on"></i><i></i><i></i><i></i></div>
+        <div class="meta" data-i18n="j2d">발표 예상 <strong>10월 20일 전후</strong></div>
+      </div>
+      <div class="job">
+        <div class="job-head"><span class="job-name" data-i18n="j3">C사 · 데이터 분석</span><span class="chip done" data-i18n="j3s">서류 합격</span></div>
+        <div class="steps"><i class="on"></i><i class="on"></i><i></i><i></i></div>
+        <div class="meta" data-i18n="j3d">다음 전형 <strong>인적성 검사</strong></div>
+      </div>
+      <p class="phone-note" data-i18n="note">화면은 예시이며 실제 앱과 다를 수 있습니다</p>
+    </div>
+  </div>
+</header>
+
+<section class="soft">
+  <div class="wrap">
+    <p class="eyebrow">WHY HAPHAP</p>
+    <h2 data-i18n="why_h">지원서를 낸 다음부터는<br>아무것도 보이지 않았습니다</h2>
+    <div class="problem">
+      <div class="q" data-i18n="q1">“결과는 언제 나오지?”<small>발표일이 공지되지 않아 하루 종일 메일함과 문자를 확인합니다.</small></div>
+      <div class="q" data-i18n="q2">“나만 아직 연락이 없나?”<small>다른 지원자들이 결과를 받았는지 알 길이 없어 불안이 커집니다.</small></div>
+      <div class="q" data-i18n="q3">“어디까지 진행됐더라?”<small>여러 회사에 동시에 지원하면 전형 단계가 뒤섞입니다.</small></div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <p class="eyebrow">FEATURES</p>
+    <h2 data-i18n="f_h">기다림을 데이터로 바꿉니다</h2>
+    <p class="sub" data-i18n="f_sub">같은 공고에 지원한 사람들의 결과가 모이면, 혼자서는 알 수 없던 흐름이 보이기 시작합니다.</p>
+    <div class="features">
+      <div class="feat">
+        <div class="ico"><svg viewBox="0 0 24 24"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></div>
+        <h3 data-i18n="f1h">전형별 결과 트래킹</h3>
+        <p data-i18n="f1p">서류, 인적성, 면접까지 지원한 공고의 전형 단계와 결과를 한곳에서 관리합니다.</p>
+      </div>
+      <div class="feat">
+        <div class="ico"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15 20c0-2.2 1.3-4 3-4.5 1.7.5 3 2.3 3 4.5"/></svg></div>
+        <h3 data-i18n="f2h">같은 공고 지원자 데이터</h3>
+        <p data-i18n="f2p">같은 공고에 지원한 사람들이 남긴 결과를 구조화해, 지금 전형이 어디까지 진행됐는지 보여줍니다.</p>
+      </div>
+      <div class="feat">
+        <div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4M12 14v3l2 1"/></svg></div>
+        <h3 data-i18n="f3h">발표 예상 시점</h3>
+        <p data-i18n="f3p">모인 결과 데이터를 바탕으로 결과 발표가 언제쯤일지 예상 시점을 알려줍니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how" class="soft">
+  <div class="wrap">
+    <p class="eyebrow">HOW IT WORKS</p>
+    <h2 data-i18n="h_h">세 단계면 충분합니다</h2>
+    <ol class="how">
+      <li><h3 data-i18n="s1h">지원한 공고 등록</h3><p data-i18n="s1p">지원한 회사와 공고를 검색해 내 지원 목록에 추가합니다.</p></li>
+      <li><h3 data-i18n="s2h">결과 기록</h3><p data-i18n="s2p">전형 결과를 받으면 기록합니다. 내 기록이 다른 지원자의 기다림을 줄여줍니다.</p></li>
+      <li><h3 data-i18n="s3h">흐름 확인</h3><p data-i18n="s3p">다른 지원자들의 결과 현황과 발표 예상 시점을 확인합니다.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section id="team">
+  <div class="wrap">
+    <p class="eyebrow">TEAM</p>
+    <h2 data-i18n="t_h">HAPHAP을 만드는 사람들</h2>
+    <p class="sub" data-i18n="t_sub">IT 창업 동아리 SOPT 38기 앱잼에서 시작해, 정식 출시를 향해 함께 만들고 있는 11명의 팀입니다.</p>
+    <div class="team">
+      <div><span data-i18n="r1">기획·PM</span><b>2</b></div>
+      <div><span data-i18n="r2">디자인</span><b>2</b></div>
+      <div><span data-i18n="r3">서버</span><b>2</b></div>
+      <div>Android<b>5</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="soft launch">
+  <div class="wrap">
+    <h2 data-i18n="l_h">곧 Google Play에서 만나요</h2>
+    <p class="sub" data-i18n="l_sub">2026년 12월 ~ 2027년 1월 정식 출시를 준비하고 있습니다.<br>출시 소식은 인스타그램에서 가장 먼저 전해드릴게요.</p>
+    <div class="cta">
+      <a class="btn btn-primary" href="https://www.instagram.com/haphap_official_/" target="_blank" rel="noopener" data-i18n="l_cta">@haphap_official_ 팔로우</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 HAPHAP. All rights reserved.</span>
+    <span>
+      <a href="https://www.instagram.com/haphap_official_/" target="_blank" rel="noopener">Instagram</a>
+      <!-- 연락용 메일이 생기면 아래 주석을 풀고 주소를 바꾸세요 -->
+      <!-- · <a href="mailto:contact@haphap.example">contact@haphap.example</a> -->
+    </span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var EN={
+    nav1:"Features",nav2:"How it works",nav3:"Team",
+    badge:"Launching December 2026",
+    h1:"After you apply,<br>make the waiting<br><em>clearer</em>",
+    lead:"HAPHAP is an application-result tracking service. Using data from people who applied to the same job posting, it structures results by hiring stage and shows when results are likely to be announced.",
+    cta1:"Get launch updates",cta2:"How does it work?",
+    m_title:"My applications",m_count:"3 in progress",
+    j1:"Company A · Backend (New grad)",j1s:"1st interview",j1d:"Expected <strong>Oct 14 – 16</strong>",
+    j1r:"<strong>38%</strong> of applicants for this posting have heard back",
+    j2:"Company B · Service Planning",j2s:"Résumé",j2d:"Expected <strong>around Oct 20</strong>",
+    j3:"Company C · Data Analyst",j3s:"Passed résumé",j3d:"Next stage <strong>Aptitude test</strong>",
+    note:"Illustrative screen; the actual app may differ",
+    why_h:"Once you submit an application,<br>everything goes dark",
+    q1:"“When will results come out?”<small>No announcement date is given, so you check your inbox and texts all day.</small>",
+    q2:"“Am I the only one who hasn’t heard back?”<small>There’s no way to know whether other applicants have received results.</small>",
+    q3:"“Which stage was I at again?”<small>Applying to several companies at once makes every stage blur together.</small>",
+    f_h:"Turning waiting into data",
+    f_sub:"When results from people who applied to the same posting come together, patterns you could never see alone start to appear.",
+    f1h:"Stage-by-stage tracking",f1p:"Manage every stage — résumé, aptitude test, interviews — and its result for each posting in one place.",
+    f2h:"Same-posting applicant data",f2p:"Results shared by people who applied to the same posting are structured to show how far the process has progressed.",
+    f3h:"Expected announcement date",f3p:"Based on the collected results, HAPHAP estimates when the next announcement is likely to arrive.",
+    h_h:"Three simple steps",
+    s1h:"Add your applications",s1p:"Search for the companies and postings you applied to and add them to your list.",
+    s2h:"Log your results",s2p:"Record results as they arrive. Your record shortens the wait for other applicants.",
+    s3h:"See the flow",s3p:"Check other applicants’ progress and the expected announcement date.",
+    t_h:"The team behind HAPHAP",
+    t_sub:"An 11-person team that started at the 38th SOPT APPJAM (a Korean IT startup club) and is building toward an official launch.",
+    r1:"Planning · PM",r2:"Design",r3:"Server",
+    l_h:"Coming soon to Google Play",
+    l_sub:"We’re preparing to launch between December 2026 and January 2027.<br>Follow us on Instagram to hear first.",
+    l_cta:"Follow @haphap_official_"
+  };
+  var nodes=document.querySelectorAll('[data-i18n]'), KO={};
+  nodes.forEach(function(n){KO[n.dataset.i18n]=n.innerHTML;});
+  var meta=document.querySelector('meta[name=description]'), koDesc=meta.content, koTitle=document.title;
+  function set(lang){
+    var d=lang==='en'?EN:KO;
+    nodes.forEach(function(n){var k=n.dataset.i18n; if(d[k]!=null) n.innerHTML=d[k];});
+    document.documentElement.lang=lang;
+    document.title=lang==='en'?'HAPHAP · Application Result Tracker':koTitle;
+    meta.content=lang==='en'?'HAPHAP structures hiring-stage results from people who applied to the same job posting and shows when results are likely to be announced.':koDesc;
+    document.querySelectorAll('.lang button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.lang===lang);});
+    try{localStorage.setItem('haphap-lang',lang);}catch(e){}
+  }
+  document.querySelectorAll('.lang button').forEach(function(b){b.addEventListener('click',function(){set(b.dataset.lang);});});
+  var q=new URLSearchParams(location.search).get('lang'), saved=null;
+  try{saved=localStorage.getItem('haphap-lang');}catch(e){}
+  var nav=(navigator.language||'ko').toLowerCase();
+  set(q==='en'||q==='ko'?q:(saved||(nav.indexOf('ko')===0?'ko':'en')));
+})();
+</script>
+</body>
+</html>
